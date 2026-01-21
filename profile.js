@@ -6,8 +6,9 @@ let roomToDelete = null;
 let fileToDelete = null;
 
 // Initialize Supabase
-const SUPABASE_URL = 'https://tscgpbefbtditdmypvfx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzY2dwYmVmYnRkaXRkbXlwdmZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MTM3MjMsImV4cCI6MjA2NTQ4OTcyM30.2wc76kRjCj-qnSUeQt2V5UqQtSQ89LYiefXM7ezEtPk';
+// Initialize Supabase
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Check authentication on load
@@ -17,12 +18,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = '/';
     return;
   }
-  
+
   currentUser = {
     id: session.user.id,
     email: session.user.email
   };
-  
+
   updateUserInfo();
   updateAuthUI();
   await loadUserData();
@@ -31,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Update auth UI based on user state
 function updateAuthUI() {
   const authButtons = document.getElementById('authButtons');
-  
+
   if (currentUser) {
     authButtons.innerHTML = `
       <div class="profile-icon-btn" onclick="toggleProfileDropdown()" onmouseenter="showProfileDropdownOnHover()" onmouseleave="hideProfileDropdownOnHover()">
@@ -89,7 +90,7 @@ function hideProfileDropdownOnHover() {
 document.addEventListener('click', (e) => {
   const profileBtn = e.target.closest('.profile-icon-btn');
   const dropdown = document.getElementById('profileDropdown');
-  
+
   if (!profileBtn && dropdown) {
     dropdown.classList.remove('show');
   }
@@ -106,9 +107,9 @@ function showError(message) {
       <button class="error-close" onclick="this.parentElement.parentElement.remove()">×</button>
     </div>
   `;
-  
+
   document.body.appendChild(errorDiv);
-  
+
   // Auto-remove after 5 seconds
   setTimeout(() => {
     if (errorDiv.parentElement) {
@@ -127,9 +128,9 @@ function showSuccess(message) {
       <button class="success-close" onclick="this.parentElement.parentElement.remove()">×</button>
     </div>
   `;
-  
+
   document.body.appendChild(successDiv);
-  
+
   // Auto-remove after 3 seconds
   setTimeout(() => {
     if (successDiv.parentElement) {
@@ -163,11 +164,11 @@ async function loadUserData() {
     }
 
     userRooms = rooms || [];
-    
+
     // Flatten all files from all rooms
     userFiles = [];
     let totalStorage = 0;
-    
+
     userRooms.forEach(room => {
       room.files.forEach(file => {
         userFiles.push({
@@ -199,7 +200,7 @@ async function loadUserData() {
 // Render user's rooms
 function renderUserRooms() {
   const roomsContainer = document.getElementById('userRooms');
-  
+
   if (userRooms.length === 0) {
     roomsContainer.innerHTML = `
       <div class="empty-state">
@@ -243,12 +244,12 @@ function renderUserRooms() {
 function renderUserFiles() {
   const filesContainer = document.getElementById('userFiles');
   const roomFilter = document.getElementById('roomFilter').value;
-  
+
   let filteredFiles = userFiles;
   if (roomFilter) {
     filteredFiles = userFiles.filter(file => file.room_key === roomFilter);
   }
-  
+
   if (filteredFiles.length === 0) {
     filesContainer.innerHTML = `
       <div class="empty-state">
@@ -292,16 +293,16 @@ function renderUserFiles() {
 function populateRoomFilter() {
   const roomFilter = document.getElementById('roomFilter');
   const currentValue = roomFilter.value;
-  
+
   roomFilter.innerHTML = '<option value="">All Rooms</option>';
-  
+
   userRooms.forEach(room => {
     const option = document.createElement('option');
     option.value = room.key;
     option.textContent = room.name;
     roomFilter.appendChild(option);
   });
-  
+
   roomFilter.value = currentValue;
   roomFilter.addEventListener('change', renderUserFiles);
 }
@@ -320,7 +321,7 @@ function hideDeleteRoomModal() {
 
 async function confirmDeleteRoom() {
   if (!roomToDelete) return;
-  
+
   try {
     // Get room info first to delete storage files
     const { data: room, error: roomError } = await supabase
@@ -379,7 +380,7 @@ function hideDeleteFileModal() {
 
 async function confirmDeleteFile() {
   if (!fileToDelete) return;
-  
+
   try {
     // Get file info first
     const { data: file, error: fileError } = await supabase
@@ -448,12 +449,12 @@ function hideDeleteAccountModal() {
 
 async function confirmDeleteAccount() {
   const confirmText = document.getElementById('confirmDeleteText').value;
-  
+
   if (confirmText !== 'DELETE') {
     showError('Please type "DELETE" to confirm account deletion');
     return;
   }
-  
+
   try {
     // First delete all user's files from storage
     for (const room of userRooms) {
@@ -480,13 +481,13 @@ async function confirmDeleteAccount() {
 
     // Delete the user account from auth
     const { error: authError } = await supabase.auth.signOut();
-    
+
     if (authError) {
       console.error('Logout error:', authError);
     }
 
     showSuccess('Account deleted successfully');
-    
+
     // Redirect to home page after a short delay
     setTimeout(() => {
       window.location.href = '/';
@@ -523,21 +524,21 @@ async function downloadFile(url, filename) {
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch file');
-    
+
     const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = blobUrl;
     a.download = filename;
     a.style.display = 'none';
-    
+
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
+
     window.URL.revokeObjectURL(blobUrl);
-    
+
     showSuccess(`Downloaded: ${filename}`);
   } catch (error) {
     console.error('Download failed:', error);
@@ -552,9 +553,9 @@ async function handleLogout() {
     if (error) {
       throw error;
     }
-    
+
     showSuccess('Logged out successfully');
-    
+
     // Redirect to home page after a short delay
     setTimeout(() => {
       window.location.href = '/';
@@ -573,3 +574,20 @@ document.addEventListener('click', (e) => {
     hideDeleteAccountModal();
   }
 });
+
+// Expose functions to window for HTML access
+window.handleLogout = handleLogout;
+window.toggleProfileDropdown = toggleProfileDropdown;
+window.showProfileDropdownOnHover = showProfileDropdownOnHover;
+window.hideProfileDropdownOnHover = hideProfileDropdownOnHover;
+window.showDeleteRoomModal = showDeleteRoomModal;
+window.hideDeleteRoomModal = hideDeleteRoomModal;
+window.confirmDeleteRoom = confirmDeleteRoom;
+window.showDeleteFileModal = showDeleteFileModal;
+window.hideDeleteFileModal = hideDeleteFileModal;
+window.confirmDeleteFile = confirmDeleteFile;
+window.showDeleteAccountModal = showDeleteAccountModal;
+window.hideDeleteAccountModal = hideDeleteAccountModal;
+window.confirmDeleteAccount = confirmDeleteAccount;
+window.openInNewTab = openInNewTab;
+window.downloadFile = downloadFile;

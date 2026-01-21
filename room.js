@@ -7,8 +7,9 @@ let fileToDelete = null; // Store file info for deletion
 let selectedFiles = new Set(); // Track selected files
 
 // Initialize Supabase
-const SUPABASE_URL = 'https://tscgpbefbtditdmypvfx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzY2dwYmVmYnRkaXRkbXlwdmZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MTM3MjMsImV4cCI6MjA2NTQ4OTcyM30.2wc76kRjCj-qnSUeQt2V5UqQtSQ89LYiefXM7ezEtPk';
+// Initialize Supabase
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Check if we have access
@@ -28,9 +29,9 @@ function showError(message) {
       <button class="error-close" onclick="this.parentElement.parentElement.remove()">×</button>
     </div>
   `;
-  
+
   document.body.appendChild(errorDiv);
-  
+
   // Auto-remove after 5 seconds
   setTimeout(() => {
     if (errorDiv.parentElement) {
@@ -49,9 +50,9 @@ function showSuccess(message) {
       <button class="success-close" onclick="this.parentElement.parentElement.remove()">×</button>
     </div>
   `;
-  
+
   document.body.appendChild(successDiv);
-  
+
   // Auto-remove after 3 seconds
   setTimeout(() => {
     if (successDiv.parentElement) {
@@ -69,10 +70,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       email: session.user.email
     };
   }
-  
+
   updateAuthUI();
   await loadRoom();
-  
+
   // Listen for auth changes
   supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Update auth UI based on user state
 function updateAuthUI() {
   const authButtons = document.getElementById('authButtons');
-  
+
   if (currentUser) {
     authButtons.innerHTML = `
       <div class="profile-icon-btn" onclick="toggleProfileDropdown()" onmouseenter="showProfileDropdownOnHover()" onmouseleave="hideProfileDropdownOnHover()">
@@ -149,7 +150,7 @@ function hideProfileDropdownOnHover() {
 document.addEventListener('click', (e) => {
   const profileBtn = e.target.closest('.profile-icon-btn');
   const dropdown = document.getElementById('profileDropdown');
-  
+
   if (!profileBtn && dropdown) {
     dropdown.classList.remove('show');
   }
@@ -159,7 +160,7 @@ document.addEventListener('click', (e) => {
 function updateUploadButtonVisibility() {
   const uploadButton = document.getElementById('uploadButton');
   const isOwner = currentRoom && currentUser && currentRoom.created_by === currentUser.id;
-  
+
   if (isOwner) {
     uploadButton.style.display = 'flex';
   } else {
@@ -172,7 +173,7 @@ function showLoginModal() {
   const modal = document.getElementById('loginModal');
   modal.classList.add('active');
   document.getElementById('loginEmail').focus();
-  
+
   // Clear any previous errors
   const existingErrors = modal.querySelectorAll('.error-message');
   existingErrors.forEach(error => error.remove());
@@ -182,7 +183,7 @@ function showRegisterModal() {
   const modal = document.getElementById('registerModal');
   modal.classList.add('active');
   document.getElementById('registerEmail').focus();
-  
+
   // Clear any previous errors
   const existingErrors = modal.querySelectorAll('.error-message');
   existingErrors.forEach(error => error.remove());
@@ -200,10 +201,10 @@ function hideModals() {
 // Delete Modal Management
 function showDeleteModal(fileId, fileName) {
   fileToDelete = { id: fileId, name: fileName };
-  
+
   const modal = document.getElementById('deleteModal');
   const fileNameElement = document.getElementById('deleteFileName');
-  
+
   fileNameElement.textContent = fileName;
   modal.classList.add('active');
 }
@@ -231,48 +232,48 @@ document.addEventListener('click', (e) => {
 // Authentication functions
 async function handleLogin(e) {
   e.preventDefault();
-  
+
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const modal = document.getElementById('loginModal');
-  
+
   // Clear previous errors
   const existingErrors = modal.querySelectorAll('.error-message');
   existingErrors.forEach(error => error.remove());
-  
+
   // Validation
   if (!email) {
     showError('Email is required');
     return;
   }
-  
+
   if (!password) {
     showError('Password is required');
     return;
   }
-  
+
   if (password.length < 6) {
     showError('Password must be at least 6 characters long');
     return;
   }
-  
+
   // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     showError('Please enter a valid email address');
     return;
   }
-  
+
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password
     });
-    
+
     if (error) {
       // Handle specific Supabase auth errors
       let errorMessage = 'Login failed';
-      
+
       if (error.message.includes('Invalid login credentials')) {
         errorMessage = 'Invalid email or password. Please check your credentials and try again.';
       } else if (error.message.includes('Email not confirmed')) {
@@ -282,16 +283,16 @@ async function handleLogin(e) {
       } else {
         errorMessage = error.message;
       }
-      
+
       showError(errorMessage);
       return;
     }
-    
+
     if (!data.user) {
       showError('Login failed. Please try again.');
       return;
     }
-    
+
     currentUser = {
       id: data.user.id,
       email: data.user.email
@@ -299,13 +300,13 @@ async function handleLogin(e) {
     updateAuthUI();
     updateUploadButtonVisibility();
     hideModals();
-    
+
     // Clear form
     e.target.reset();
-    
+
     // Show success message
     showSuccess('Login successful!');
-    
+
     // Refresh the UI to show delete buttons if user is room owner
     updateUI();
   } catch (err) {
@@ -316,65 +317,65 @@ async function handleLogin(e) {
 
 async function handleRegister(e) {
   e.preventDefault();
-  
+
   const email = document.getElementById('registerEmail').value.trim();
   const password = document.getElementById('registerPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
   const modal = document.getElementById('registerModal');
-  
+
   // Clear previous errors
   const existingErrors = modal.querySelectorAll('.error-message');
   existingErrors.forEach(error => error.remove());
-  
+
   // Validation
   if (!email) {
     showError('Email is required');
     return;
   }
-  
+
   if (!password) {
     showError('Password is required');
     return;
   }
-  
+
   if (!confirmPassword) {
     showError('Please confirm your password');
     return;
   }
-  
+
   // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     showError('Please enter a valid email address');
     return;
   }
-  
+
   if (password.length < 6) {
     showError('Password must be at least 6 characters long');
     return;
   }
-  
+
   if (password !== confirmPassword) {
     showError('Passwords do not match');
     return;
   }
-  
+
   // Password strength validation
   if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
     showError('Password should contain at least one uppercase letter, one lowercase letter, and one number');
     return;
   }
-  
+
   try {
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password
     });
-    
+
     if (error) {
       // Handle specific Supabase auth errors
       let errorMessage = 'Registration failed';
-      
+
       if (error.message.includes('User already registered')) {
         errorMessage = 'An account with this email already exists. Please try logging in instead.';
       } else if (error.message.includes('Password should be at least 6 characters')) {
@@ -384,11 +385,11 @@ async function handleRegister(e) {
       } else {
         errorMessage = error.message;
       }
-      
+
       showError(errorMessage);
       return;
     }
-    
+
     // Check if email confirmation is required
     if (data.user && !data.session) {
       showSuccess('Please check your email to confirm your account before logging in.');
@@ -398,12 +399,12 @@ async function handleRegister(e) {
       }, 2000);
       return;
     }
-    
+
     if (!data.user) {
       showError('Registration failed. Please try again.');
       return;
     }
-    
+
     currentUser = {
       id: data.user.id,
       email: data.user.email
@@ -411,13 +412,13 @@ async function handleRegister(e) {
     updateAuthUI();
     updateUploadButtonVisibility();
     hideModals();
-    
+
     // Clear form
     e.target.reset();
-    
+
     // Show success message
     showSuccess('Registration successful! Welcome to ArcRoom!');
-    
+
     // Refresh the UI to show delete buttons if user is room owner
     updateUI();
   } catch (err) {
@@ -432,13 +433,13 @@ async function handleLogout() {
     if (error) {
       throw error;
     }
-    
+
     currentUser = null;
     updateAuthUI();
     updateUploadButtonVisibility();
-    
+
     showSuccess('Logged out successfully');
-    
+
     // Refresh the UI to hide delete buttons
     updateUI();
   } catch (err) {
@@ -459,7 +460,7 @@ async function loadRoom() {
       `)
       .eq('key', roomKey)
       .single();
-    
+
     if (error) {
       if (error.code === 'PGRST116') {
         showError('Room not found');
@@ -468,13 +469,13 @@ async function loadRoom() {
       }
       throw new Error(error.message);
     }
-    
+
     if (!room) {
       showError('Room not found');
       setTimeout(() => window.location.href = '/', 2000);
       return;
     }
-    
+
     // Verify PIN
     if (room.pin !== savedPin) {
       sessionStorage.removeItem(`room_pin_${roomKey}`);
@@ -482,7 +483,7 @@ async function loadRoom() {
       setTimeout(() => window.location.href = '/', 2000);
       return;
     }
-    
+
     currentRoom = {
       ...room,
       files: room.files.map(file => ({
@@ -494,7 +495,7 @@ async function loadRoom() {
         uploadedAt: new Date(file.uploaded_at)
       }))
     };
-    
+
     updateUI();
     updateUploadButtonVisibility();
   } catch (err) {
@@ -508,9 +509,9 @@ async function loadRoom() {
 function getDynamicTitleStyle(name) {
   const length = name.length;
   const screenWidth = window.innerWidth;
-  
+
   let fontSize;
-  
+
   // Base font size calculation based on character length
   if (length <= 15) {
     fontSize = screenWidth >= 768 ? '1.75rem' : '1.25rem'; // Large
@@ -521,7 +522,7 @@ function getDynamicTitleStyle(name) {
   } else {
     fontSize = screenWidth >= 768 ? '1rem' : '0.875rem'; // Extra small
   }
-  
+
   return {
     fontSize: fontSize,
     lineHeight: '1.2',
@@ -538,10 +539,10 @@ function updateUI() {
     const titleStyle = getDynamicTitleStyle(currentRoom.name);
     Object.assign(roomNameElement.style, titleStyle);
   }
-  
+
   // Update files list
   const filesList = document.getElementById('filesList');
-  
+
   if (currentRoom.files.length === 0) {
     filesList.innerHTML = `
       <div class="empty-state">
@@ -552,12 +553,12 @@ function updateUI() {
     `;
     return;
   }
-  
+
   // Check if current user is the room creator
   const isOwner = currentUser && currentRoom.created_by === currentUser.id;
-  
+
   let html = '';
-  
+
   // Show selection actions if items are selected
   const totalSelected = selectedFiles.size;
   if (totalSelected > 0 && isOwner) {
@@ -578,7 +579,7 @@ function updateUI() {
       </div>
     `;
   }
-  
+
   // Render files
   currentRoom.files.forEach(file => {
     const isSelected = selectedFiles.has(file.id);
@@ -610,7 +611,7 @@ function updateUI() {
       </div>
     `;
   });
-  
+
   filesList.innerHTML = html;
 }
 
@@ -632,14 +633,14 @@ function clearSelection() {
 function deleteSelectedItems() {
   const totalSelected = selectedFiles.size;
   if (totalSelected === 0) return;
-  
+
   const confirmMessage = `Are you sure you want to delete ${totalSelected} selected file${totalSelected > 1 ? 's' : ''}?`;
   if (confirm(confirmMessage)) {
     // Delete selected files
     selectedFiles.forEach(fileId => {
       deleteFile(fileId);
     });
-    
+
     clearSelection();
   }
 }
@@ -648,12 +649,12 @@ function deleteSelectedItems() {
 function viewFile(fileId) {
   const file = currentRoom.files.find(f => f.id === fileId);
   if (!file) return;
-  
+
   const viewer = document.getElementById('fileViewer');
   const type = file.type.toLowerCase();
-  
+
   let content = '';
-  
+
   if (type.includes('image')) {
     content = `
       <div class="file-preview">
@@ -800,7 +801,7 @@ function viewFile(fileId) {
       </div>
     `;
   }
-  
+
   viewer.innerHTML = content;
 }
 
@@ -813,51 +814,51 @@ function openInNewTab(url) {
 async function handleFileUpload(event) {
   const files = event.target.files;
   if (!files.length) return;
-  
+
   if (!currentUser) {
     showLoginModal();
     showError('You must be logged in to upload files');
     return;
   }
-  
+
   if (currentRoom.created_by !== currentUser.id) {
     showError('Only the room creator can upload files');
     return;
   }
-  
+
   const maxFileSize = 10 * 1024 * 1024; // 10MB
   const maxFiles = 10;
-  
+
   // Validate files
   const validFiles = [];
   const errors = [];
-  
+
   for (const file of files) {
     if (file.size > maxFileSize) {
       errors.push(`${file.name} is too large (max 10MB)`);
       continue;
     }
-    
+
     if (currentRoom.files.length + validFiles.length >= maxFiles) {
       errors.push(`Maximum ${maxFiles} files allowed per room`);
       break;
     }
-    
+
     validFiles.push(file);
   }
-  
+
   if (errors.length > 0) {
     showError(errors.join(', '));
   }
-  
+
   if (validFiles.length === 0) {
     event.target.value = '';
     return;
   }
-  
+
   try {
     let uploadedCount = 0;
-    
+
     for (const file of validFiles) {
       try {
         // Generate unique file name
@@ -900,7 +901,7 @@ async function handleFileUpload(event) {
           showError(`Failed to save ${file.name}: ${fileError.message}`);
           continue;
         }
-        
+
         // Add to current room files
         currentRoom.files.push({
           id: fileData.id,
@@ -910,14 +911,14 @@ async function handleFileUpload(event) {
           url: fileData.url,
           uploadedAt: new Date(fileData.uploaded_at)
         });
-        
+
         uploadedCount++;
       } catch (error) {
         console.error(`Error uploading file ${file.name}:`, error);
         showError(`Failed to upload ${file.name}: ${error.message}`);
       }
     }
-    
+
     if (uploadedCount > 0) {
       updateUI();
       showSuccess(`Successfully uploaded ${uploadedCount} file${uploadedCount > 1 ? 's' : ''}!`);
@@ -926,7 +927,7 @@ async function handleFileUpload(event) {
     console.error('Upload error:', err);
     showError('Upload failed: ' + err.message);
   }
-  
+
   // Reset input
   event.target.value = '';
 }
@@ -937,7 +938,7 @@ async function deleteFile(fileId) {
     showError('Only the room creator can delete files');
     return;
   }
-  
+
   try {
     // Get file info first
     const { data: file, error: fileError } = await supabase
@@ -975,12 +976,12 @@ async function deleteFile(fileId) {
       showError(`Failed to delete file: ${dbError.message}`);
       return;
     }
-    
+
     currentRoom.files = currentRoom.files.filter(f => f.id !== fileId);
     updateUI();
-    
+
     showSuccess(`${file.name} deleted successfully`);
-    
+
     // Clear viewer if deleted file was being viewed
     const viewer = document.getElementById('fileViewer');
     viewer.innerHTML = `
@@ -1002,16 +1003,16 @@ function handleShare() {
   const shareUrl = document.getElementById('shareUrl');
   const shareRoomKey = document.getElementById('shareRoomKey');
   const shareRoomPin = document.getElementById('shareRoomPin');
-  
+
   // Set the share URL to point to the home page
   shareUrl.value = `${window.location.origin}/`;
-  
+
   // Set dynamic room information
   if (currentRoom) {
     shareRoomKey.textContent = currentRoom.key;
     shareRoomPin.textContent = savedPin; // Show the actual PIN
   }
-  
+
   modal.classList.add('active');
 }
 
@@ -1019,7 +1020,7 @@ function copyToClipboard() {
   const shareUrl = document.getElementById('shareUrl');
   shareUrl.select();
   shareUrl.setSelectionRange(0, 99999); // For mobile devices
-  
+
   navigator.clipboard.writeText(shareUrl.value).then(() => {
     showSuccess('URL copied to clipboard!');
   }).catch(() => {
@@ -1054,31 +1055,31 @@ function formatFileSize(bytes) {
 async function downloadFile(url, filename) {
   try {
     showSuccess('Starting download...');
-    
+
     // Fetch the file as a blob
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error('Failed to fetch file');
     }
-    
+
     const blob = await response.blob();
-    
+
     // Create a temporary URL for the blob
     const blobUrl = window.URL.createObjectURL(blob);
-    
+
     // Create a temporary anchor element and trigger download
     const a = document.createElement('a');
     a.href = blobUrl;
     a.download = filename;
     a.style.display = 'none';
-    
+
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
+
     // Clean up the blob URL
     window.URL.revokeObjectURL(blobUrl);
-    
+
     showSuccess(`Downloaded: ${filename}`);
   } catch (error) {
     console.error('Download failed:', error);
@@ -1098,3 +1099,22 @@ window.addEventListener('resize', () => {
     }
   }
 });
+
+// Expose functions to window for HTML access
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.handleLogout = handleLogout;
+window.toggleProfileDropdown = toggleProfileDropdown;
+window.showProfileDropdownOnHover = showProfileDropdownOnHover;
+window.hideProfileDropdownOnHover = hideProfileDropdownOnHover;
+window.showLoginModal = showLoginModal;
+window.showRegisterModal = showRegisterModal;
+window.deleteSelectedItems = deleteSelectedItems;
+window.clearSelection = clearSelection;
+window.viewFile = viewFile;
+window.toggleFileSelection = toggleFileSelection;
+window.openInNewTab = openInNewTab;
+window.downloadFile = downloadFile;
+window.showDeleteModal = showDeleteModal;
+window.hideDeleteModal = hideDeleteModal;
+window.confirmDeleteFile = confirmDeleteFile;

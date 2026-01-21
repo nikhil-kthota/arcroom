@@ -2,8 +2,9 @@
 let currentUser = null;
 
 // Initialize Supabase
-const SUPABASE_URL = 'https://tscgpbefbtditdmypvfx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzY2dwYmVmYnRkaXRkbXlwdmZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MTM3MjMsImV4cCI6MjA2NTQ4OTcyM30.2wc76kRjCj-qnSUeQt2V5UqQtSQ89LYiefXM7ezEtPk';
+// Initialize Supabase
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Check authentication on load
@@ -13,12 +14,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = '/';
     return;
   }
-  
+
   currentUser = {
     id: session.user.id,
     email: session.user.email
   };
-  
+
   // Update the user email in the profile dropdown
   updateUserEmail();
 });
@@ -59,7 +60,7 @@ function hideProfileDropdownOnHover() {
 document.addEventListener('click', (e) => {
   const profileBtn = e.target.closest('.profile-icon-btn');
   const dropdown = document.getElementById('profileDropdown');
-  
+
   if (!profileBtn && dropdown) {
     dropdown.classList.remove('show');
   }
@@ -69,7 +70,7 @@ document.addEventListener('click', (e) => {
 function showError(message, containerId = 'createRoomForm') {
   // Remove any existing error messages first
   clearMessages(containerId);
-  
+
   const errorDiv = document.createElement('div');
   errorDiv.className = 'error-message';
   errorDiv.innerHTML = `
@@ -79,7 +80,7 @@ function showError(message, containerId = 'createRoomForm') {
       <button class="error-close" onclick="this.parentElement.parentElement.remove()">×</button>
     </div>
   `;
-  
+
   const container = document.getElementById(containerId);
   if (container) {
     // Insert error at the top of the form
@@ -87,7 +88,7 @@ function showError(message, containerId = 'createRoomForm') {
   } else {
     // Fallback to body if container not found
     document.body.appendChild(errorDiv);
-    
+
     // Auto-remove after 5 seconds for body-level errors
     setTimeout(() => {
       if (errorDiv.parentElement) {
@@ -100,7 +101,7 @@ function showError(message, containerId = 'createRoomForm') {
 function showSuccess(message, containerId = 'createRoomForm') {
   // Remove any existing messages first
   clearMessages(containerId);
-  
+
   const successDiv = document.createElement('div');
   successDiv.className = 'success-message';
   successDiv.innerHTML = `
@@ -110,7 +111,7 @@ function showSuccess(message, containerId = 'createRoomForm') {
       <button class="success-close" onclick="this.parentElement.parentElement.remove()">×</button>
     </div>
   `;
-  
+
   const container = document.getElementById(containerId);
   if (container) {
     // Insert success message at the top of the form
@@ -118,7 +119,7 @@ function showSuccess(message, containerId = 'createRoomForm') {
   } else {
     // Fallback to body if container not found
     document.body.appendChild(successDiv);
-    
+
     // Auto-remove after 3 seconds for body-level messages
     setTimeout(() => {
       if (successDiv.parentElement) {
@@ -157,7 +158,7 @@ uploadArea.addEventListener('dragleave', () => {
 uploadArea.addEventListener('drop', (e) => {
   e.preventDefault();
   uploadArea.classList.remove('drag-over');
-  
+
   const files = Array.from(e.dataTransfer.files);
   handleFiles(files);
 });
@@ -175,32 +176,32 @@ function handleFiles(files) {
   // Validate files
   const validFiles = [];
   const errors = [];
-  
+
   for (const file of files) {
     if (file.size > 10 * 1024 * 1024) { // 10MB limit
       errors.push(`File ${file.name} is too large. Maximum size is 10MB.`);
       continue;
     }
-    
+
     if (selectedFiles.length + validFiles.length >= 10) {
       errors.push(`Maximum 10 files allowed per room`);
       break;
     }
-    
+
     validFiles.push(file);
   }
-  
+
   if (errors.length > 0) {
     showError(errors.join(', '));
   }
-  
+
   if (validFiles.length === 0) {
     return;
   }
-  
+
   selectedFiles = [...selectedFiles, ...validFiles];
   updateFileList();
-  
+
   // Show disclaimer if files are selected
   if (selectedFiles.length > 0) {
     dataDisclaimer.style.display = 'block';
@@ -408,3 +409,12 @@ async function handleLogout() {
   await supabase.auth.signOut();
   window.location.href = '/';
 }
+
+// Expose functions to window for HTML access
+window.handleCreateRoom = handleCreateRoom;
+window.handleFileSelect = handleFileSelect;
+window.handleLogout = handleLogout;
+window.removeFile = removeFile;
+window.toggleProfileDropdown = toggleProfileDropdown;
+window.showProfileDropdownOnHover = showProfileDropdownOnHover;
+window.hideProfileDropdownOnHover = hideProfileDropdownOnHover;

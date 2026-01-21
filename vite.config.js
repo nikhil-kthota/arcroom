@@ -9,7 +9,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: 'index.html'
+        main: 'index.html',
+        createRoom: 'create-room.html',
+        profile: 'profile.html',
+        room: 'room.html'
       }
     }
   }
