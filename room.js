@@ -1002,17 +1002,13 @@ async function deleteFile(fileId) {
 function handleShare() {
   try {
     const modal = document.getElementById('shareModal');
-    const shareUrl = document.getElementById('shareUrl');
     const shareRoomKey = document.getElementById('shareRoomKey');
     const shareRoomPin = document.getElementById('shareRoomPin');
 
-    if (!modal || !shareUrl || !shareRoomKey || !shareRoomPin) {
+    if (!modal || !shareRoomKey || !shareRoomPin) {
       console.error('Share modal elements not found');
       return;
     }
-
-    // Set the share URL - pointing to the current room URL
-    shareUrl.value = window.location.href;
 
     // Set dynamic room information
     if (currentRoom) {
@@ -1025,38 +1021,6 @@ function handleShare() {
   } catch (err) {
     console.error('Error in handleShare:', err);
     showError('Failed to open share modal');
-  }
-}
-
-function copyToClipboard() {
-  try {
-    const shareUrl = document.getElementById('shareUrl');
-    if (!shareUrl) return;
-
-    shareUrl.select();
-    shareUrl.setSelectionRange(0, 99999); // For mobile devices
-
-    // Try modern API first
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(shareUrl.value)
-        .then(() => showSuccess('URL copied to clipboard!'))
-        .catch(() => fallbackCopy(shareUrl));
-    } else {
-      fallbackCopy(shareUrl);
-    }
-  } catch (err) {
-    console.error('Error copying to clipboard:', err);
-    fallbackCopy(document.getElementById('shareUrl'));
-  }
-}
-
-function fallbackCopy(element) {
-  try {
-    document.execCommand('copy');
-    showSuccess('URL copied to clipboard!');
-  } catch (err) {
-    console.error('Fallback copy failed:', err);
-    showError('Failed to copy URL. Please copy manually.');
   }
 }
 
@@ -1147,5 +1111,4 @@ window.showDeleteModal = showDeleteModal;
 window.hideDeleteModal = hideDeleteModal;
 window.confirmDeleteFile = confirmDeleteFile;
 window.handleShare = handleShare;
-window.copyToClipboard = copyToClipboard;
 window.hideModals = hideModals;
