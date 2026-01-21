@@ -513,7 +513,7 @@ async function confirmDeleteAccount() {
 
     // Redirect to home page after a short delay
     setTimeout(() => {
-      window.location.href = '/';
+      window.location.href = 'index.html';
     }, 2000);
 
   } catch (err) {
@@ -570,22 +570,26 @@ async function downloadFile(url, filename) {
   }
 }
 
+// Robust logout function
 async function handleLogout() {
   try {
+    // Attempt Supabase sign out
     const { error } = await supabase.auth.signOut();
     if (error) {
-      throw error;
+      console.warn('Supabase signOut error:', error);
+      // We continue anyway to ensure local logout
     }
-
-    showSuccess('Logged out successfully');
-
-    // Redirect to home page after a short delay
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1000);
   } catch (err) {
-    console.error('Logout error:', err);
-    showError('Failed to logout. Please try again.');
+    console.warn('Logout exception:', err);
+  } finally {
+    // Always perform local cleanup and redirect
+    currentUser = null;
+    showSuccess('Logging out...');
+
+    // Redirect to home page
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 500);
   }
 }
 

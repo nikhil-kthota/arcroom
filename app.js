@@ -410,25 +410,24 @@ async function handleRegister(e) {
   }
 }
 
+// Robust logout function
 async function handleLogout() {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      throw error;
+      console.warn('Supabase signOut error:', error);
     }
-
+  } catch (err) {
+    console.warn('Logout exception:', err);
+  } finally {
     currentUser = null;
     updateUIForUser();
+    showSuccess('Logging out...');
 
-    showSuccess('Logged out successfully');
-
-    // Redirect to home page after a short delay
+    // Redirect to home page
     setTimeout(() => {
-      window.location.href = '/';
-    }, 1000);
-  } catch (err) {
-    console.error('Logout error:', err);
-    showError('Failed to logout. Please try again.');
+      window.location.href = 'index.html';
+    }, 500);
   }
 }
 

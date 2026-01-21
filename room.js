@@ -427,24 +427,32 @@ async function handleRegister(e) {
   }
 }
 
+// Robust logout function
 async function handleLogout() {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      throw error;
+      console.warn('Supabase signOut error:', error);
     }
-
+  } catch (err) {
+    console.warn('Logout exception:', err);
+  } finally {
     currentUser = null;
     updateAuthUI();
     updateUploadButtonVisibility();
-
-    showSuccess('Logged out successfully');
+    showSuccess('Logging out...');
 
     // Refresh the UI to hide delete buttons
     updateUI();
-  } catch (err) {
-    console.error('Logout error:', err);
-    showError('Failed to logout. Please try again.');
+
+    // Optional: Redirect to home or just stay on room page as guest
+    // User requested "go back to home page" on logout generally, 
+    // but typically logging out while in a room might just degrade rights.
+    // However, for consistency with the request "go back to home page",
+    // let's redirect.
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 500);
   }
 }
 
