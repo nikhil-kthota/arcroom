@@ -227,7 +227,7 @@ function renderUserRooms() {
       </div>
       
       <div class="room-actions">
-        <button class="btn btn-ghost btn-sm" onclick="handleViewRoom('${room.key}', '${room.pin}')">
+        <button class="btn btn-ghost btn-sm" onclick="handleViewRoom('${room.key}')">
           <span class="icon-eye"></span>
           View
         </button>
@@ -238,6 +238,29 @@ function renderUserRooms() {
       </div>
     </div>
   `).join('');
+}
+
+// Handle view room navigation
+function handleViewRoom(roomKey) {
+  // Save PIN to session storage if needed, or just navigate
+  // Since we are the owner, we should seemingly have access, 
+  // but room.js checks for a PIN in sessionStorage. 
+  // If we are the creator, we might need to verify the PIN or auto-authenticate.
+  // For now, let's just navigate. The room.js logic checks:
+  // const savedPin = sessionStorage.getItem(`room_pin_${roomKey}`);
+  // if (!roomKey || !savedPin) { window.location.href = '/'; }
+
+  // PROBLEM: The user is the owner, but room.js enforces a PIN check from sessionStorage.
+  // The owner needs to have the PIN in session storage to access their own room via room.html!
+  // We need to fetch the room's PIN and store it in sessionStorage before navigating.
+
+  const room = userRooms.find(r => r.key === roomKey);
+  if (room) {
+    sessionStorage.setItem(`room_pin_${roomKey}`, room.pin);
+    window.location.href = `room.html?id=${roomKey}`;
+  } else {
+    showError('Room not found');
+  }
 }
 
 // Render user's files
@@ -575,12 +598,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Handle view room (sets PIN in session storage)
-function handleViewRoom(roomKey, roomPin) {
-  sessionStorage.setItem(`room_pin_${roomKey}`, roomPin);
-  window.location.href = `room.html?id=${roomKey}`;
-}
-
 // Expose functions to window for HTML access
 window.handleLogout = handleLogout;
 window.toggleProfileDropdown = toggleProfileDropdown;
@@ -596,5 +613,5 @@ window.showDeleteAccountModal = showDeleteAccountModal;
 window.hideDeleteAccountModal = hideDeleteAccountModal;
 window.confirmDeleteAccount = confirmDeleteAccount;
 window.openInNewTab = openInNewTab;
-window.downloadFile = downloadFile;
 window.handleViewRoom = handleViewRoom;
+window.downloadFile = downloadFile;
