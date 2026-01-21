@@ -227,7 +227,7 @@ function renderUserRooms() {
       </div>
       
       <div class="room-actions">
-        <button class="btn btn-ghost btn-sm" onclick="window.location.href='room.html?id=${room.key}'">
+        <button class="btn btn-ghost btn-sm" onclick="handleViewRoom('${room.key}', '${room.pin}')">
           <span class="icon-eye"></span>
           View
         </button>
@@ -575,6 +575,12 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Handle view room (sets PIN in session storage)
+function handleViewRoom(roomKey, roomPin) {
+  sessionStorage.setItem(`room_pin_${roomKey}`, roomPin);
+  window.location.href = `room.html?id=${roomKey}`;
+}
+
 // Expose functions to window for HTML access
 window.handleLogout = handleLogout;
 window.toggleProfileDropdown = toggleProfileDropdown;
@@ -591,3 +597,4 @@ window.hideDeleteAccountModal = hideDeleteAccountModal;
 window.confirmDeleteAccount = confirmDeleteAccount;
 window.openInNewTab = openInNewTab;
 window.downloadFile = downloadFile;
+window.handleViewRoom = handleViewRoom;

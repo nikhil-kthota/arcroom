@@ -1100,6 +1100,43 @@ window.addEventListener('resize', () => {
   }
 });
 
+// Share Modal Functions
+function handleShare() {
+  const modal = document.getElementById('shareModal');
+  const shareUrl = document.getElementById('shareUrl');
+  const shareRoomKey = document.getElementById('shareRoomKey');
+  const shareRoomPin = document.getElementById('shareRoomPin');
+
+  if (currentRoom) {
+    // Set values
+    shareUrl.value = window.location.href; // Use current URL (includes room ID)
+    shareRoomKey.textContent = currentRoom.key;
+
+    // Check if we have the PIN in session storage (we should if we're authenticated)
+    const pin = sessionStorage.getItem(`room_pin_${currentRoom.key}`);
+    shareRoomPin.textContent = pin || '****';
+
+    modal.classList.add('active');
+  }
+}
+
+function copyToClipboard() {
+  const shareUrl = document.getElementById('shareUrl');
+  shareUrl.select();
+  document.execCommand('copy');
+
+  // Visual feedback
+  const copyBtn = shareUrl.nextElementSibling;
+  const originalText = copyBtn.textContent;
+  copyBtn.textContent = 'Copied!';
+  copyBtn.classList.add('btn-success');
+
+  setTimeout(() => {
+    copyBtn.textContent = originalText;
+    copyBtn.classList.remove('btn-success');
+  }, 2000);
+}
+
 // Expose functions to window for HTML access
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
@@ -1118,3 +1155,6 @@ window.downloadFile = downloadFile;
 window.showDeleteModal = showDeleteModal;
 window.hideDeleteModal = hideDeleteModal;
 window.confirmDeleteFile = confirmDeleteFile;
+window.handleShare = handleShare;
+window.copyToClipboard = copyToClipboard;
+window.hideModals = hideModals;
