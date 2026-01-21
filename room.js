@@ -998,40 +998,66 @@ async function deleteFile(fileId) {
 }
 
 // Share functionality with dynamic room ID and PIN
+// Share functionality
 function handleShare() {
-  const modal = document.getElementById('shareModal');
-  const shareUrl = document.getElementById('shareUrl');
-  const shareRoomKey = document.getElementById('shareRoomKey');
-  const shareRoomPin = document.getElementById('shareRoomPin');
+  try {
+    const modal = document.getElementById('shareModal');
+    const shareUrl = document.getElementById('shareUrl');
+    const shareRoomKey = document.getElementById('shareRoomKey');
+    const shareRoomPin = document.getElementById('shareRoomPin');
 
-  // Set the share URL to point to the home page
-  shareUrl.value = `${window.location.origin}/`;
+    if (!modal || !shareUrl || !shareRoomKey || !shareRoomPin) {
+      console.error('Share modal elements not found');
+      return;
+    }
 
-  // Set dynamic room information
-  if (currentRoom) {
-    shareRoomKey.textContent = currentRoom.key;
-    shareRoomPin.textContent = savedPin; // Show the actual PIN
+    // Set the share URL - pointing to the current room URL
+    shareUrl.value = window.location.href;
+
+    // Set dynamic room information
+    if (currentRoom) {
+      shareRoomKey.textContent = currentRoom.key;
+      // Use savedPin from session or fallback
+      shareRoomPin.textContent = savedPin || '****';
+    }
+
+    modal.classList.add('active');
+  } catch (err) {
+    console.error('Error in handleShare:', err);
+    showError('Failed to open share modal');
   }
-
-  modal.classList.add('active');
 }
 
 function copyToClipboard() {
-  const shareUrl = document.getElementById('shareUrl');
-  shareUrl.select();
-  shareUrl.setSelectionRange(0, 99999); // For mobile devices
+  try {
+    const shareUrl = document.getElementById('shareUrl');
+    if (!shareUrl) return;
 
-  navigator.clipboard.writeText(shareUrl.value).then(() => {
-    showSuccess('URL copied to clipboard!');
-  }).catch(() => {
-    // Fallback for older browsers
-    try {
-      document.execCommand('copy');
-      showSuccess('URL copied to clipboard!');
-    } catch (err) {
-      showError('Failed to copy URL. Please copy manually.');
+    shareUrl.select();
+    shareUrl.setSelectionRange(0, 99999); // For mobile devices
+
+    // Try modern API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl.value)
+        .then(() => showSuccess('URL copied to clipboard!'))
+        .catch(() => fallbackCopy(shareUrl));
+    } else {
+      fallbackCopy(shareUrl);
     }
-  });
+  } catch (err) {
+    console.error('Error copying to clipboard:', err);
+    fallbackCopy(document.getElementById('shareUrl'));
+  }
+}
+
+function fallbackCopy(element) {
+  try {
+    document.execCommand('copy');
+    showSuccess('URL copied to clipboard!');
+  } catch (err) {
+    console.error('Fallback copy failed:', err);
+    showError('Failed to copy URL. Please copy manually.');
+  }
 }
 
 // Utility functions
@@ -1100,42 +1126,7 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Share Modal Functions
-function handleShare() {
-  const modal = document.getElementById('shareModal');
-  const shareUrl = document.getElementById('shareUrl');
-  const shareRoomKey = document.getElementById('shareRoomKey');
-  const shareRoomPin = document.getElementById('shareRoomPin');
 
-  if (currentRoom) {
-    // Set values
-    shareUrl.value = window.location.href; // Use current URL (includes room ID)
-    shareRoomKey.textContent = currentRoom.key;
-
-    // Check if we have the PIN in session storage (we should if we're authenticated)
-    const pin = sessionStorage.getItem(`room_pin_${currentRoom.key}`);
-    shareRoomPin.textContent = pin || '****';
-
-    modal.classList.add('active');
-  }
-}
-
-function copyToClipboard() {
-  const shareUrl = document.getElementById('shareUrl');
-  shareUrl.select();
-  document.execCommand('copy');
-
-  // Visual feedback
-  const copyBtn = shareUrl.nextElementSibling;
-  const originalText = copyBtn.textContent;
-  copyBtn.textContent = 'Copied!';
-  copyBtn.classList.add('btn-success');
-
-  setTimeout(() => {
-    copyBtn.textContent = originalText;
-    copyBtn.classList.remove('btn-success');
-  }, 2000);
-}
 
 // Expose functions to window for HTML access
 window.handleLogin = handleLogin;
