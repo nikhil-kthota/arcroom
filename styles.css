@@ -1482,7 +1482,6 @@ a:hover {
 .file-list-preview ul {
   list-style: none;
   padding: 0;
-  space-y: 0.75rem;
 }
 
 .file-list-preview li {
@@ -2005,5 +2004,190 @@ a:hover {
 
   .file-item .btn-icon {
     padding: 0.25rem;
+  }
+}
+
+/* =========================================
+   Imported Styles from scrollbar.css
+   ========================================= */
+
+/* Custom Scrollbar Styles */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--silver-300, #d4d4d4);
+  border-radius: 6px;
+  border: 2px solid #000000;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--silver-200, #e5e5e5);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--silver-400, #a3a3a3);
+}
+
+::-webkit-scrollbar-corner {
+  background: #000000;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--silver-300, #d4d4d4) #000000;
+}
+
+/* For better cross-browser support */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--silver-300, #d4d4d4) #000000;
+}
+
+/* Ensure scrollbar styling applies to all scrollable elements */
+body,
+.modal-content,
+.file-list,
+.files-container,
+.viewer-container,
+.preview-content,
+.profile-content,
+.rooms-grid,
+.files-grid,
+.upload-section,
+.folder-content,
+textarea,
+select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: var(--silver-300, #d4d4d4) #000000;
+}
+
+/* Webkit scrollbar for specific elements */
+.modal-content::-webkit-scrollbar,
+.file-list::-webkit-scrollbar,
+.files-container::-webkit-scrollbar,
+.viewer-container::-webkit-scrollbar,
+.preview-content::-webkit-scrollbar,
+.profile-content::-webkit-scrollbar,
+.rooms-grid::-webkit-scrollbar,
+.files-grid::-webkit-scrollbar,
+.upload-section::-webkit-scrollbar,
+.folder-content::-webkit-scrollbar,
+textarea::-webkit-scrollbar,
+select::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track,
+.file-list::-webkit-scrollbar-track,
+.files-container::-webkit-scrollbar-track,
+.viewer-container::-webkit-scrollbar-track,
+.preview-content::-webkit-scrollbar-track,
+.profile-content::-webkit-scrollbar-track,
+.rooms-grid::-webkit-scrollbar-track,
+.files-grid::-webkit-scrollbar-track,
+.upload-section::-webkit-scrollbar-track,
+.folder-content::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track,
+select::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb,
+.file-list::-webkit-scrollbar-thumb,
+.files-container::-webkit-scrollbar-thumb,
+.viewer-container::-webkit-scrollbar-thumb,
+.preview-content::-webkit-scrollbar-thumb,
+.profile-content::-webkit-scrollbar-thumb,
+.rooms-grid::-webkit-scrollbar-thumb,
+.files-grid::-webkit-scrollbar-thumb,
+.upload-section::-webkit-scrollbar-thumb,
+.folder-content::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb,
+select::-webkit-scrollbar-thumb {
+  background: var(--silver-300, #d4d4d4);
+  border-radius: 4px;
+  border: 1px solid #000000;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover,
+.file-list::-webkit-scrollbar-thumb:hover,
+.files-container::-webkit-scrollbar-thumb:hover,
+.viewer-container::-webkit-scrollbar-thumb:hover,
+.preview-content::-webkit-scrollbar-thumb:hover,
+.profile-content::-webkit-scrollbar-thumb:hover,
+.rooms-grid::-webkit-scrollbar-thumb:hover,
+.files-grid::-webkit-scrollbar-thumb:hover,
+.upload-section::-webkit-scrollbar-thumb:hover,
+.folder-content::-webkit-scrollbar-thumb:hover,
+textarea::-webkit-scrollbar-thumb:hover,
+select::-webkit-scrollbar-thumb:hover {
+  background: var(--silver-200, #e5e5e5);
+}
+
+/* =========================================
+   Imported Styles from room-layout.css
+   ========================================= */
+
+/* Ensure the file list and file viewer take up the full available width */
+.file-list,
+.file-viewer {
+  width: 100%;
+}
+
+/* Card styling for sections */
+.file-list,
+.file-viewer {
+  background-color: var(--silver-800, #1a1a1a);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* Ensure proper spacing and layout for the files container */
+.files-container {
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.files-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Style the file viewer container */
+.viewer-container {
+  min-height: 300px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+
+  .file-list,
+  .file-viewer {
+    padding: 1rem;
   }
 }

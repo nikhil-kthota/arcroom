@@ -7,7 +7,6 @@ let fileToDelete = null; // Store file info for deletion
 let selectedFiles = new Set(); // Track selected files
 
 // Initialize Supabase
-// Initialize Supabase
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1006,7 +1005,6 @@ async function deleteFile(fileId) {
 }
 
 // Share functionality with dynamic room ID and PIN
-// Share functionality
 function handleShare() {
   try {
     const modal = document.getElementById('shareModal');
