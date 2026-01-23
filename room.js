@@ -600,7 +600,7 @@ function updateUI() {
         ` : ''}
         <div class="file-icon ${getFileIconClass(file.type)}"></div>
         <div class="file-info">
-          <h3>${file.name}</h3>
+          <h3 title="${file.name}">${truncateFileName(file.name, 25)}</h3>
           <p>${formatFileSize(file.size)}</p>
         </div>
         <div class="file-actions">
@@ -1047,6 +1047,30 @@ function formatFileSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / 1048576).toFixed(1) + ' MB';
+}
+// Truncate file name helper
+function truncateFileName(name, maxLength = 20) {
+  if (name.length <= maxLength) return name;
+
+  const lastDotIndex = name.lastIndexOf('.');
+  // If no extension or extension is the whole name (hidden file), just truncate
+  if (lastDotIndex === -1 || lastDotIndex === 0) {
+    return name.substring(0, maxLength) + '...';
+  }
+
+  const extension = name.substring(lastDotIndex);
+  const nameWithoutExt = name.substring(0, lastDotIndex);
+
+  // Calculate how much space we have for the name part
+  // We need to reserve space for "..." (3 chars) and the extension
+  const availableLength = maxLength - 3 - extension.length;
+
+  if (availableLength <= 0) {
+    // If extension plus ellipsis is longer than maxLength, just show start...ext
+    return name.substring(0, Math.max(1, maxLength - 3 - extension.length)) + '...' + extension;
+  }
+
+  return nameWithoutExt.substring(0, availableLength) + '...' + extension;
 }
 
 // Enhanced download function that actually downloads to device
