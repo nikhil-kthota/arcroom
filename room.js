@@ -1144,3 +1144,4 @@ window.hideDeleteModal = hideDeleteModal;
 window.confirmDeleteFile = confirmDeleteFile;
 window.handleShare = handleShare;
 window.hideModals = hideModals;
+window.handleFileUpload = handleFileUpload;
