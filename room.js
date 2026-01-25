@@ -1016,11 +1016,13 @@ async function deleteFile(fileId) {
 }
 
 // Share functionality with dynamic room ID and PIN
+// Share functionality with dynamic room ID and PIN
 function handleShare() {
   try {
     const modal = document.getElementById('shareModal');
     const shareRoomKey = document.getElementById('shareRoomKey');
     const shareRoomPin = document.getElementById('shareRoomPin');
+    const shareRoomLink = document.getElementById('shareRoomLink');
 
     if (!modal || !shareRoomKey || !shareRoomPin) {
       console.error('Share modal elements not found');
@@ -1032,12 +1034,30 @@ function handleShare() {
       shareRoomKey.textContent = currentRoom.key;
       // Use savedPin from session or fallback
       shareRoomPin.textContent = savedPin || '****';
+
+      if (shareRoomLink) {
+        shareRoomLink.value = window.location.href;
+      }
     }
 
     modal.classList.add('active');
   } catch (err) {
     console.error('Error in handleShare:', err);
     showError('Failed to open share modal');
+  }
+}
+
+function copyShareLink() {
+  const linkInput = document.getElementById('shareRoomLink');
+  if (linkInput) {
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(linkInput.value).then(() => {
+      showSuccess('Link copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy link: ', err);
+      showError('Failed to copy link');
+    });
   }
 }
 
@@ -1191,3 +1211,4 @@ window.confirmDeleteFile = confirmDeleteFile;
 window.handleShare = handleShare;
 window.hideModals = hideModals;
 window.handleFileUpload = handleFileUpload;
+window.copyShareLink = copyShareLink;
