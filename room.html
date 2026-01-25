@@ -214,6 +214,23 @@
     </div>
   </div>
 
+  <div class="modal" id="pinAuthModal">
+    <div class="modal-content">
+      <h2>Enter Room PIN</h2>
+      <p style="color: var(--silver-400); margin-bottom: 1.5rem; text-align: center;">
+        This room is protected. Please enter the PIN to continue.
+      </p>
+      <form id="pinAuthForm" onsubmit="handlePinAuth(event)">
+        <div class="form-group">
+          <label for="roomPinAuth">Room PIN</label>
+          <input type="password" id="roomPinAuth" required placeholder="Enter 4-digit PIN" maxlength="4" pattern="\d{4}"
+            inputmode="numeric">
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Access Room</button>
+      </form>
+    </div>
+  </div>
+
   <script type="module" src="room.js"></script>
 </body>
 

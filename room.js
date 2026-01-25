@@ -12,8 +12,9 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Check if we have access
-const savedPin = sessionStorage.getItem(`room_pin_${roomKey}`);
-if (!roomKey || !savedPin) {
+let savedPin = sessionStorage.getItem(`room_pin_${roomKey}`);
+
+if (!roomKey) {
   window.location.href = '/';
 }
 
@@ -71,7 +72,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   updateAuthUI();
-  await loadRoom();
+
+  if (savedPin) {
+    await loadRoom();
+  } else {
+    // Show PIN Auth Modal
+    const modal = document.getElementById('pinAuthModal');
+    if (modal) {
+      modal.classList.add('active');
+      document.getElementById('roomPinAuth').focus();
+    }
+  }
 
   // Listen for auth changes
   supabase.auth.onAuthStateChange((event, session) => {
@@ -1121,8 +1132,45 @@ window.addEventListener('resize', () => {
 });
 
 
+// PIN Authentication Handler
+async function handlePinAuth(e) {
+  e.preventDefault();
+  const inputPin = document.getElementById('roomPinAuth').value;
+
+  try {
+    const { data: room, error } = await supabase
+      .from('rooms')
+      .select('pin')
+      .eq('key', roomKey)
+      .single();
+
+    if (error || !room) {
+      showError('Room not found');
+      return;
+    }
+
+    if (room.pin === inputPin) {
+      savedPin = inputPin;
+      sessionStorage.setItem(`room_pin_${roomKey}`, inputPin);
+
+      // Hide modal
+      const modal = document.getElementById('pinAuthModal');
+      if (modal) modal.classList.remove('active');
+
+      showSuccess('Access granted!');
+      loadRoom();
+    } else {
+      showError('Incorrect PIN');
+    }
+
+  } catch (err) {
+    console.error(err);
+    showError('Authentication failed');
+  }
+}
 
 // Expose functions to window for HTML access
+window.handlePinAuth = handlePinAuth;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
