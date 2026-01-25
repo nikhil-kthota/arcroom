@@ -1016,7 +1016,6 @@ async function deleteFile(fileId) {
 }
 
 // Share functionality with dynamic room ID and PIN
-// Share functionality with dynamic room ID and PIN
 function handleShare() {
   try {
     const modal = document.getElementById('shareModal');
