@@ -123,19 +123,40 @@
 
       <div class="share-details">
         <h4>Room Access Information</h4>
-        <div class="room-info-grid">
-          <div class="room-info-item">
-            <label>Room Key:</label>
-            <span class="room-key-display" id="shareRoomKey">Loading...</span>
-          </div>
-          <div class="room-info-item">
-            <label>PIN:</label>
-            <span class="room-pin-display" id="shareRoomPin">••••</span>
+        <div class="share-step">
+          <p class="step-label">1. Access via Home Page</p>
+          <p class="step-desc">They can access the room by entering the Room Key and PIN on the home page of ArcRoom.
+          </p>
+
+          <div class="room-info-grid">
+            <div class="room-info-item">
+              <label>Room Key:</label>
+              <span class="room-key-display" id="shareRoomKey">Loading...</span>
+            </div>
+            <div class="room-info-item">
+              <label>PIN:</label>
+              <span class="room-pin-display" id="shareRoomPin">••••</span>
+            </div>
           </div>
         </div>
-        <p class="share-instructions">
-          Share the room key and PIN. Users can enter these details on the home page to access the room.
-        </p>
+
+        <div class="share-divider">OR</div>
+
+        <div class="share-step">
+          <p class="step-label">2. Access via Direct Link</p>
+          <p class="step-desc">They can access the room directly via the link (entering the PIN). Share the Link and PIN
+            with others.</p>
+
+          <div class="room-link-section">
+            <label>Direct Link:</label>
+            <div class="link-input-group">
+              <input type="text" id="shareRoomLink" readonly onclick="this.select()">
+              <button class="btn btn-primary btn-sm" onclick="copyShareLink()">
+                <span class="icon-copy"></span> Copy
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="modal-actions">
