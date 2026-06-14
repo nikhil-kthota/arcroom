@@ -15,14 +15,23 @@ jobs:
     steps:
       - name: Ping Supabase REST API
         run: |
+          URL="${{ secrets.VITE_SUPABASE_URL }}"
+          KEY="${{ secrets.VITE_SUPABASE_ANON_KEY }}"
+          echo "URL length: ${#URL}"
+          echo "KEY length: ${#KEY}"
           STATUS=$(curl -s -L -o /dev/null -w "%{http_code}" \
-            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/rooms?select=*&limit=1" \
-            -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}")
+            "${URL}/rest/v1/rooms?select=*&limit=1" \
+            -H "apikey: ${KEY}" \
+            -H "Authorization: Bearer ${KEY}")
           echo "Supabase responded with HTTP status: $STATUS"
           if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 300 ]; then
             echo "Supabase is active."
           else
             echo "Unexpected status code: $STATUS"
+            if [ ${#URL} -gt 0 ]; then
+              curl -s -L "${URL}/rest/v1/rooms?select=*&limit=1" \
+                -H "apikey: ${KEY}" \
+                -H "Authorization: Bearer ${KEY}"
+            fi
             exit 1
           fi
