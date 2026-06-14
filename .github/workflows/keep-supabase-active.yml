@@ -1,6 +1,8 @@
 name: Keep Supabase Active
 
 on:
+  push:
+    branches: ["main"]
   schedule:
     # Runs every 3 days at midnight UTC to prevent pausing (which happens after 7 days of inactivity)
     - cron: '0 0 */3 * *'
